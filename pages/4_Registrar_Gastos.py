@@ -90,26 +90,42 @@ if not gastos_filtrados.empty:
     )
 
     if st.button("Eliminar gasto seleccionado"):
-        df_original = pd.read_csv(file_path)
-        fila_global = gastos_filtrados.index[fila_a_eliminar - 1]
-        fila_real = gastos_filtrados.loc[fila_global]
+    df_original = pd.read_csv(file_path)
 
-        match = (
-           (df_original["Usuario"] == fila_real["Usuario"]) &
-           (df_original["Categoría"] == fila_real["Categoría"]) &
-           (df_original["Descripción"] == fila_real["Descripción"]) &
-           (df_original["Cantidad"].astype(float) == float(fila_real["Cantidad"])) &
-           (df_original["Precio Unitario"].astype(float) == float(fila_real["Precio Unitario"])) &
-           (df_original["Monto"].astype(float) == float(fila_real["Monto"])) &
-           (df_original["Fecha"] == fila_real["Fecha"])
+    # Reaplicar el filtro para alinear índice con el archivo original
+    if categoria_filtro != "Todos":
+        gastos_filtrados = df_original[df_original["Categoría"] == categoria_filtro]
+    else:
+        gastos_filtrados = df_original
 
-        )
-        df_actualizado = df_original[~match]
-        df_actualizado.to_csv(file_path, index=False)
-        st.success("✅ Gasto eliminado exitosamente.")
-        try:
-            st.experimental_rerun()
-        except:
-            pass
+    gastos_filtrados = gastos_filtrados.reset_index(drop=True)
+    gastos_filtrados.index += 1  # Para que empiece en 1 igual que en la UI
+
+    if 1 <= fila_a_eliminar <= len(gastos_filtrados):
+        fila_real = gastos_filtrados.loc[fila_a_eliminar - 1]
+
+        # Encontrar el índice real de esa fila en el CSV original
+        index_real = df_original[
+            (df_original["Usuario"] == fila_real["Usuario"]) &
+            (df_original["Categoría"] == fila_real["Categoría"]) &
+            (df_original["Descripción"] == fila_real["Descripción"]) &
+            (df_original["Cantidad"].astype(float) == float(fila_real["Cantidad"])) &
+            (df_original["Precio Unitario"].astype(float) == float(fila_real["Precio Unitario"])) &
+            (df_original["Monto"].astype(float) == float(fila_real["Monto"])) &
+            (df_original["Fecha"] == fila_real["Fecha"])
+        ].index
+
+        if not index_real.empty:
+            df_actualizado = df_original.drop(index_real[0])
+            df_actualizado.to_csv(file_path, index=False)
+            st.success("✅ Gasto eliminado exitosamente.")
+            try:
+                st.experimental_rerun()
+            except:
+                pass
+        else:
+            st.warning("⚠️ No se encontró la fila para eliminar. Intenta de nuevo.")
+    else:
+        st.warning("⚠️ Número de fila inválido.")
 else:
     st.info("No hay gastos para eliminar.")
