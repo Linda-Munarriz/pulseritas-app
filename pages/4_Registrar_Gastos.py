@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import os
+import uuid
 
+# ----------- VERIFICAR SESIÓN -----------
 if 'logged_in' not in st.session_state or not st.session_state.logged_in:
     st.warning("Debes iniciar sesión primero.")
     st.stop()
@@ -11,12 +13,20 @@ st.title("💸 Registrar Gastos")
 
 file_path = "data/gastos.csv"
 
-# Asegurar que exista el archivo
+# ----------- FUNCIONES AUXILIARES -----------
+def ensure_ids(df):
+    if "ID" not in df.columns:
+        df["ID"] = [str(uuid.uuid4()) for _ in range(len(df))]
+    elif df["ID"].isnull().any():
+        df["ID"] = df["ID"].fillna(value=[str(uuid.uuid4()) for _ in range(len(df))])
+    return df
+
+# ----------- ASEGURAR EXISTENCIA DE ARCHIVO -----------
 if not os.path.exists(file_path):
-    gastos_df = pd.DataFrame(columns=["Usuario", "Categoría", "Descripción", "Cantidad", "Precio Unitario", "Monto", "Fecha"])
+    gastos_df = pd.DataFrame(columns=["ID", "Usuario", "Categoría", "Descripción", "Cantidad", "Precio Unitario", "Monto", "Fecha"])
     gastos_df.to_csv(file_path, index=False)
 
-# ---------------- Formulario ----------------
+# ----------- FORMULARIO DE GASTO -----------
 with st.form("gasto_form"):
     categoria = st.selectbox("Categoría", ["Packaging", "Insumos"])
     descripcion = st.text_input("Descripción (ej: hilo blanco)")
@@ -31,6 +41,7 @@ with st.form("gasto_form"):
 
     if submitted:
         new_row = {
+            "ID": str(uuid.uuid4()),
             "Usuario": st.session_state.username,
             "Categoría": categoria,
             "Descripción": descripcion,
@@ -40,6 +51,7 @@ with st.form("gasto_form"):
             "Fecha": fecha
         }
         gastos_df = pd.read_csv(file_path)
+        gastos_df = ensure_ids(gastos_df)
         gastos_df = pd.concat([gastos_df, pd.DataFrame([new_row])], ignore_index=True)
         gastos_df.to_csv(file_path, index=False)
         st.success("✅ Gasto registrado exitosamente.")
@@ -48,10 +60,11 @@ with st.form("gasto_form"):
         except:
             pass
 
-# ---------------- Historial ----------------
+# ----------- HISTORIAL DE GASTOS -----------
 st.subheader("📋 Historial de gastos")
 
-gastos_df = pd.read_csv(file_path)
+gastos_df = ensure_ids(pd.read_csv(file_path))
+gastos_df.to_csv(file_path, index=False)
 
 categoria_filtro = st.selectbox("🔍 Filtrar por categoría:", ["Todos", "Packaging", "Insumos"])
 
@@ -60,13 +73,12 @@ if categoria_filtro != "Todos":
 else:
     gastos_filtrados = gastos_df
 
-# Mostrar tabla (con índice desde 1 para que coincida con tabla de eliminación)
 tabla_historial = gastos_filtrados.sort_values("Fecha", ascending=False).reset_index(drop=True)
 tabla_historial.index += 1
-st.dataframe(tabla_historial, use_container_width=True)
+st.dataframe(tabla_historial.drop(columns=["ID"]), use_container_width=True)
 
-# Descargar CSV
-csv_export = gastos_filtrados.to_csv(index=False).encode("utf-8")
+# ----------- DESCARGAR CSV -----------
+csv_export = gastos_filtrados.drop(columns=["ID"]).to_csv(index=False).encode("utf-8")
 st.download_button(
     label="⬇️ Descargar gastos como CSV",
     data=csv_export,
@@ -74,12 +86,12 @@ st.download_button(
     mime="text/csv"
 )
 
-# ---------------- Eliminar gastos ----------------
+# ----------- ELIMINAR GASTOS -----------
 st.subheader("🗑️ Eliminar gasto por error")
 
 if not gastos_filtrados.empty:
     gastos_filtrados_reset = gastos_filtrados.reset_index(drop=True)
-    tabla_mostrar = gastos_filtrados_reset.copy()
+    tabla_mostrar = gastos_filtrados_reset.drop(columns=["ID"]).copy()
     tabla_mostrar.index += 1  # Mostrar del 1 al N
 
     st.write("Selecciona el número de fila que quieres eliminar:")
@@ -93,40 +105,22 @@ if not gastos_filtrados.empty:
     )
 
     if st.button("Eliminar gasto seleccionado"):
-        df_original = pd.read_csv(file_path)
+        fila_real = gastos_filtrados_reset.iloc[fila_a_eliminar - 1]
+        id_fila = fila_real["ID"]
 
-        # Volver a aplicar el filtro con base en el CSV original
-        if categoria_filtro != "Todos":
-            gastos_filtrados_actual = df_original[df_original["Categoría"] == categoria_filtro]
+        df_original = ensure_ids(pd.read_csv(file_path))
+
+        posibles = df_original[df_original["ID"] == id_fila]
+
+        if not posibles.empty:
+            df_actualizado = df_original.drop(posibles.index[0])
+            df_actualizado.to_csv(file_path, index=False)
+            st.success("✅ Gasto eliminado exitosamente.")
+            try:
+                st.experimental_rerun()
+            except:
+                pass
         else:
-            gastos_filtrados_actual = df_original
-
-        gastos_filtrados_actual = gastos_filtrados_actual.reset_index(drop=True)
-
-        if 1 <= fila_a_eliminar <= len(gastos_filtrados_actual):
-            fila_real = gastos_filtrados_actual.iloc[fila_a_eliminar - 1]
-
-            posibles = df_original[
-                (df_original["Usuario"] == fila_real["Usuario"]) &
-                (df_original["Categoría"] == fila_real["Categoría"]) &
-                (df_original["Descripción"] == fila_real["Descripción"]) &
-                (df_original["Cantidad"].astype(float) == float(fila_real["Cantidad"])) &
-                (df_original["Precio Unitario"].astype(float) == float(fila_real["Precio Unitario"])) &
-                (df_original["Monto"].astype(float) == float(fila_real["Monto"])) &
-                (df_original["Fecha"] == fila_real["Fecha"])
-            ]
-
-            if not posibles.empty:
-                df_actualizado = df_original.drop(posibles.index[0])
-                df_actualizado.to_csv(file_path, index=False)
-                st.success("✅ Gasto eliminado exitosamente.")
-                try:
-                    st.experimental_rerun()
-                except:
-                    pass
-            else:
-                st.warning("⚠️ No se encontró el gasto para eliminar. ¿Ya fue eliminado?")
-        else:
-            st.warning("⚠️ Número de fila inválido.")
+            st.warning("⚠️ No se encontró el gasto para eliminar. ¿Ya fue eliminado?")
 else:
     st.info("No hay gastos para eliminar.")
