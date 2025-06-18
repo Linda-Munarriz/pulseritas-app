@@ -60,8 +60,10 @@ if categoria_filtro != "Todos":
 else:
     gastos_filtrados = gastos_df
 
-# Mostrar tabla
-st.dataframe(gastos_filtrados.sort_values("Fecha", ascending=False), use_container_width=True)
+# Mostrar tabla (con índice desde 1 para que coincida con tabla de eliminación)
+tabla_historial = gastos_filtrados.sort_values("Fecha", ascending=False).reset_index(drop=True)
+tabla_historial.index += 1
+st.dataframe(tabla_historial, use_container_width=True)
 
 # Descargar CSV
 csv_export = gastos_filtrados.to_csv(index=False).encode("utf-8")
