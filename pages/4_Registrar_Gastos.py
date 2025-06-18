@@ -95,15 +95,14 @@ if not gastos_filtrados.empty:
 
         # Volver a aplicar el filtro con base en el CSV original
         if categoria_filtro != "Todos":
-            gastos_filtrados = df_original[df_original["Categoría"] == categoria_filtro]
+            gastos_filtrados_actual = df_original[df_original["Categoría"] == categoria_filtro]
         else:
-            gastos_filtrados = df_original
+            gastos_filtrados_actual = df_original
 
-        gastos_filtrados = gastos_filtrados.reset_index(drop=True)
-        gastos_filtrados.index += 1  # Para que coincida con lo mostrado
+        gastos_filtrados_actual = gastos_filtrados_actual.reset_index(drop=True)
 
-        if 1 <= fila_a_eliminar <= len(gastos_filtrados):
-            fila_real = gastos_filtrados.loc[fila_a_eliminar - 1]
+        if 1 <= fila_a_eliminar <= len(gastos_filtrados_actual):
+            fila_real = gastos_filtrados_actual.iloc[fila_a_eliminar - 1]
 
             posibles = df_original[
                 (df_original["Usuario"] == fila_real["Usuario"]) &
