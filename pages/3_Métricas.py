@@ -23,7 +23,15 @@ ventas['Fecha'] = pd.to_datetime(ventas['Fecha'])
 # Cálculos
 total_desayunos_soles = ventas['Desayunos'].sum()
 total_desayunos = int(total_desayunos_soles // 3)  # Solo contar desayunos completos
-total_reinversion = ventas['Reinversión'].sum()
+gastos_file = "data/gastos.csv"
+if os.path.exists(gastos_file):
+    gastos = pd.read_csv(gastos_file)
+    total_gastos = gastos["Monto"].sum()
+else:
+    total_gastos = 0
+
+total_reinversion_bruto = ventas['Reinversión'].sum()
+total_reinversion = total_reinversion_bruto - total_gastos
 total_ventas = ventas['Cantidad'].sum()
 dinero_para_desayunos = total_desayunos * 3  # En soles
 
