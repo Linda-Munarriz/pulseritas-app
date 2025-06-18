@@ -57,12 +57,16 @@ st.line_chart(diarias)
 
 # 📊 Histograma: por tipo de pulsera
 st.subheader("📊 Ventas por tipo de pulsera")
-fig, ax = plt.subplots(figsize=(6, 4))
-ventas['Producto'].value_counts().plot(kind='bar', color=['#ffb6c1', '#f08080'], ax=ax)
-ax.set_xlabel("Tipo de pulsera")
-ax.set_ylabel("Cantidad")
-ax.set_title("Ventas por tipo de pulsera")
-st.pyplot(fig)
+
+if not ventas['Producto'].dropna().empty:
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ventas['Producto'].value_counts().plot(kind='bar', color=['#ffb6c1', '#f08080'], ax=ax)
+    ax.set_xlabel("Tipo de pulsera")
+    ax.set_ylabel("Cantidad")
+    ax.set_title("Ventas por tipo de pulsera")
+    st.pyplot(fig)
+else:
+    st.info("📭 No hay datos suficientes para mostrar esta gráfica.")
 
 # 🗑️ Eliminar última venta
 st.subheader("❌ Eliminar última venta (en caso de error)")
