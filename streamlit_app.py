@@ -18,10 +18,9 @@ if not st.session_state.logged_in:
 
     if st.button("Iniciar sesión"):
         if login_user(username, password):
-            st.session_state.logged_in = True
-            st.session_state.username = username
-            st.success("Inicio de sesión exitoso 💗. Ve al menú de la izquierda.")
-            st.stop()
+    st.session_state.logged_in = True
+    st.session_state.username = username
+    st.switch_page("pages/1_Inicio.py")
         else:
             st.error("Credenciales incorrectas 💔")
 else:
