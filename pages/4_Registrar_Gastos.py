@@ -61,3 +61,43 @@ st.download_button(
     file_name=f"gastos_{categoria_filtro.lower() if categoria_filtro != 'Todos' else 'todos'}.csv",
     mime="text/csv"
 )
+# 🗑️ Sección para eliminar gastos
+st.subheader("🗑️ Eliminar gasto por error")
+
+if not gastos_filtrados.empty:
+    gastos_filtrados = gastos_filtrados.reset_index(drop=True)
+    gastos_filtrados.index += 1  # Empezar en 1 para usuarios
+
+    st.write("Selecciona el número de fila que quieres eliminar:")
+    st.dataframe(gastos_filtrados)
+
+    fila_a_eliminar = st.number_input(
+        "Número de fila a eliminar (ver tabla arriba)", 
+        min_value=1, 
+        max_value=len(gastos_filtrados), 
+        step=1
+    )
+
+    if st.button("Eliminar gasto seleccionado"):
+        # Leer archivo original completo
+        df_original = pd.read_csv(file_path)
+
+        # Localizar fila exacta en archivo original por índice absoluto
+        fila_global = gastos_filtrados.index[fila_a_eliminar - 1]  # -1 porque el índice empieza en 1
+        fila_real = gastos_filtrados.loc[fila_global]
+
+        # Buscar en df original y eliminar esa fila exacta
+        match = (
+            (df_original["Usuario"] == fila_real["Usuario"]) &
+            (df_original["Categoría"] == fila_real["Categoría"]) &
+            (df_original["Descripción"] == fila_real["Descripción"]) &
+            (df_original["Monto"] == fila_real["Monto"]) &
+            (df_original["Fecha"] == fila_real["Fecha"])
+        )
+        df_actualizado = df_original[~match]
+
+        df_actualizado.to_csv(file_path, index=False)
+        st.success("✅ Gasto eliminado exitosamente.")
+        st.experimental_rerun()
+else:
+    st.info("No hay gastos para eliminar.")
