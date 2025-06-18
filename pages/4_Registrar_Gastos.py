@@ -98,6 +98,10 @@ if not gastos_filtrados.empty:
 
         df_actualizado.to_csv(file_path, index=False)
         st.success("✅ Gasto eliminado exitosamente.")
-        st.experimental_rerun()
+try:
+    st.experimental_rerun()
+except:
+    pass
+
 else:
     st.info("No hay gastos para eliminar.")
