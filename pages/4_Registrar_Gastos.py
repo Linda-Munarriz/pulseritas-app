@@ -76,16 +76,17 @@ st.download_button(
 st.subheader("🗑️ Eliminar gasto por error")
 
 if not gastos_filtrados.empty:
-    gastos_filtrados = gastos_filtrados.reset_index(drop=True)
-    gastos_filtrados.index += 1  # Empezar en 1
+    gastos_filtrados_reset = gastos_filtrados.reset_index(drop=True)
+    tabla_mostrar = gastos_filtrados_reset.copy()
+    tabla_mostrar.index += 1  # Mostrar del 1 al N
 
     st.write("Selecciona el número de fila que quieres eliminar:")
-    st.dataframe(gastos_filtrados)
+    st.dataframe(tabla_mostrar)
 
     fila_a_eliminar = st.number_input(
         "Número de fila a eliminar (ver tabla arriba)", 
         min_value=1, 
-        max_value=len(gastos_filtrados), 
+        max_value=len(gastos_filtrados_reset), 
         step=1
     )
 
