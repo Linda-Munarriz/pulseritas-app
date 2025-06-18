@@ -20,8 +20,9 @@ if not st.session_state.logged_in:
         if login_user(username, password):
             st.session_state.logged_in = True
             st.session_state.username = username
-            st.experimental_rerun()
+            st.success("Inicio de sesión exitoso 💗. Ve al menú de la izquierda.")
+            st.stop()
         else:
-            st.error("Credenciales incorrectas")
+            st.error("Credenciales incorrectas 💔")
 else:
     st.switch_page("pages/1_Inicio.py")
