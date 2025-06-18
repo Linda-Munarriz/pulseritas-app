@@ -37,7 +37,27 @@ with st.form("gasto_form"):
         gastos_df.to_csv(file_path, index=False)
         st.success("✅ Gasto registrado exitosamente")
 
-# Ver gastos recientes
-st.subheader("📋 Gastos registrados")
+# Ver gastos registrados con filtro
+st.subheader("📋 Historial de gastos")
+
 gastos_df = pd.read_csv(file_path)
-st.dataframe(gastos_df.sort_values("Fecha", ascending=False))
+
+# Filtro por categoría
+categoria_filtro = st.selectbox("🔍 Filtrar por categoría:", ["Todos", "Packaging", "Insumos"])
+
+if categoria_filtro != "Todos":
+    gastos_filtrados = gastos_df[gastos_df["Categoría"] == categoria_filtro]
+else:
+    gastos_filtrados = gastos_df
+
+# Mostrar tabla
+st.dataframe(gastos_filtrados.sort_values("Fecha", ascending=False), use_container_width=True)
+
+# Descargar CSV filtrado
+csv_export = gastos_filtrados.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Descargar gastos como CSV",
+    data=csv_export,
+    file_name=f"gastos_{categoria_filtro.lower() if categoria_filtro != 'Todos' else 'todos'}.csv",
+    mime="text/csv"
+)
