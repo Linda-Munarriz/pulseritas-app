@@ -1,6 +1,6 @@
 USER_CREDENTIALS = {
-    "linda": "pulseritas123",
-    "daira": "braceletgirl"
+    "Linda": "pulseritas123",
+    "Daira": "pulseritas456"
 }
 
 def login_user(username, password):
