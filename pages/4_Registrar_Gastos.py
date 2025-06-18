@@ -95,13 +95,14 @@ if not gastos_filtrados.empty:
         fila_real = gastos_filtrados.loc[fila_global]
 
         match = (
-            (df_original["Usuario"] == fila_real["Usuario"]) &
-            (df_original["Categoría"] == fila_real["Categoría"]) &
-            (df_original["Descripción"] == fila_real["Descripción"]) &
-            (df_original["Cantidad"] == int(fila_real["Cantidad"])) &
-            (df_original["Precio Unitario"] == float(fila_real["Precio Unitario"])) &
-            (df_original["Monto"] == float(fila_real["Monto"])) &
-            (df_original["Fecha"] == fila_real["Fecha"])
+           (df_original["Usuario"] == fila_real["Usuario"]) &
+           (df_original["Categoría"] == fila_real["Categoría"]) &
+           (df_original["Descripción"] == fila_real["Descripción"]) &
+           (df_original["Cantidad"].astype(float) == float(fila_real["Cantidad"])) &
+           (df_original["Precio Unitario"].astype(float) == float(fila_real["Precio Unitario"])) &
+           (df_original["Monto"].astype(float) == float(fila_real["Monto"])) &
+           (df_original["Fecha"] == fila_real["Fecha"])
+
         )
         df_actualizado = df_original[~match]
         df_actualizado.to_csv(file_path, index=False)
