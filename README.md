@@ -1,10 +1,10 @@
-## Pulseritas Co App 💖
+# Pulseritas Co App 💖
 
 Pulseritas Co is a small nonprofit initiative based in Lima, Peru, co-founded by Linda Munarriz and Daira Yovera. We sell handmade bracelets and use the proceeds to fund nutritious breakfasts for elderly street workers.
 
 When Excel became chaotic (and refused to multiply values 💀), this app was born: a clean and simple tool that helps us track sales, reinvestment, and impact.
 
-## Features:
+# Features:
 
 -Register bracelet sales (with auto-calculated reinvestment and breakfast impact)
 
