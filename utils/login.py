@@ -1,6 +1,6 @@
 USER_CREDENTIALS = {
     "Linda": "pulseritas123",
-    "Daira": "pulseritas456"
+    "Daira": "pulseritas456",
     "Stanford": "codeinplace"
 }
 
