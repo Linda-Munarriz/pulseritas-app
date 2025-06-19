@@ -18,22 +18,22 @@ When Excel became chaotic (and refused to multiply values 💀), this app was bo
 
 -Login system for individual team members
 
-## Demo:
+### Demo:
 Check out the app here:
 https://pulseritasco2.streamlit.app/
 
-## Temporary login info for reviewers:
+### Temporary login info for reviewers:
 Username: Stanford
 Password: codeinplace
 (This test user will be removed after the review period — or once we get our first sale!)
 
-## Tech stack:
+### Tech stack:
 Python
 Streamlit
 pandas
 matplotlib
 
-## Why this app?
+### Why this app?
 We wanted a tool that would keep us:
 
 -Organized with daily operations
@@ -44,7 +44,7 @@ We wanted a tool that would keep us:
 
 This is my first ever web app and I loved building it for a cause I care deeply about.
 
-## About Pulseritas Co:
+### About Pulseritas Co:
 Our mission is simple: turn bracelets into breakfast.
 
 Each “Pulserita Corazón” and “Pulserita Power” funds a portion or full breakfast. Every sale helps feed someone in need.
